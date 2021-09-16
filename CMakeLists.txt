@@ -75,3 +75,7 @@ endif()
 if (MSVC)
 	target_compile_definitions(tbb PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
 endif()
+
+if(CC_INSTALL_TBB)
+	__install_directory_specif(${CMAKE_CURRENT_SOURCE_DIR}/include/ tbb)
+endif()
