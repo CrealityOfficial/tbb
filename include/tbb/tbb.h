@@ -80,4 +80,21 @@
 #include "tbb_thread.h"
 #include "tick_count.h"
 
+void init(int a)
+{
+	
+}
+void inittbb()
+{
+    int a[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13 };
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, 13),
+        [=](const tbb::blocked_range<size_t>& r)
+        {
+            for (size_t i = r.begin(); i != r.end(); ++i)
+                init(a[i]);
+        }
+    );
+}
+
+
 #endif /* __TBB_tbb_H */
