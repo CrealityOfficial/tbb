@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2005-2019 Intel Corporation
+    Copyright (c) 2005-2020 Intel Corporation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,6 +16,13 @@
 
 #ifndef __TBB_tbb_H
 #define __TBB_tbb_H
+
+#if (!defined(TBB_SUPPRESS_DEPRECATED_MESSAGES) || (TBB_SUPPRESS_DEPRECATED_MESSAGES == 0)) && !defined(__TBB_INTERNAL_INCLUDES_DEPRECATION_MESSAGE)
+#pragma message("TBB Warning: tbb.h contains deprecated functionality. For details, please see Deprecated Features appendix in the TBB reference manual.")
+#endif
+
+#define __TBB_tbb_H_include_area
+#include "internal/_warning_suppress_enable_notice.h"
 
 /**
     This header bulk-includes declarations or definitions of all the functionality
@@ -46,6 +53,10 @@
 #include "concurrent_queue.h"
 #include "concurrent_unordered_map.h"
 #include "concurrent_unordered_set.h"
+#if TBB_PREVIEW_CONCURRENT_ORDERED_CONTAINERS
+#include "concurrent_map.h"
+#include "concurrent_set.h"
+#endif
 #include "concurrent_vector.h"
 #include "critical_section.h"
 #include "enumerable_thread_specific.h"
@@ -80,21 +91,7 @@
 #include "tbb_thread.h"
 #include "tick_count.h"
 
-void init(int a)
-{
-	
-}
-void inittbb()
-{
-    int a[] = { 1,2,3,4,5,6,7,8,9,10,11,12,13 };
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, 13),
-        [=](const tbb::blocked_range<size_t>& r)
-        {
-            for (size_t i = r.begin(); i != r.end(); ++i)
-                init(a[i]);
-        }
-    );
-}
-
+#include "internal/_warning_suppress_disable_notice.h"
+#undef __TBB_tbb_H_include_area
 
 #endif /* __TBB_tbb_H */
