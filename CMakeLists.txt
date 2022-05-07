@@ -55,7 +55,7 @@ option(TBB_SET_SOVERSION         "Set the SOVERSION (shared library build versio
 
 # When this repository is part of a larger build system of a parent project
 # we may not want TBB to set up default installation targets
-option(TBB_INSTALL_TARGETS       "Include build targets for 'make install'" ON)
+option(TBB_INSTALL_TARGETS       "Include build targets for 'make install'" OFF)
 
 if(APPLE)
   set(CMAKE_MACOSX_RPATH ON)
