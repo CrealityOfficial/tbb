@@ -69,8 +69,10 @@ __add_real_target(tbb lib SOURCE ${tbb_src}
 set_property(TARGET tbb APPEND PROPERTY COMPILE_DEFINITIONS "__TBB_BUILD=1")
 set_property(TARGET tbb APPEND_STRING PROPERTY COMPILE_FLAGS ${ENABLE_RTTI})
 
-if (UNIX AND NOT APPLE)
-	target_link_libraries(tbb PUBLIC pthread dl)
+if (UNIX)
+	if(NOT CC_BC_ANDROID AND NOT CC_BC_IOS)
+		target_link_libraries(tbb PRIVATE pthread dl)
+	endif()
 endif()
 if (MSVC)
 	target_compile_definitions(tbb PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
