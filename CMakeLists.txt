@@ -1,9 +1,13 @@
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceRuns)
 
-file(GLOB tbb_src "${CMAKE_CURRENT_SOURCE_DIR}/src/tbb/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/old/*.cpp")
-list(APPEND tbb_src ${CMAKE_CURRENT_SOURCE_DIR}/src/rml/client/rml_tbb.cpp)
-file(GLOB to_remove "${CMAKE_CURRENT_SOURCE_DIR}/src/old/test*.cpp")
+file(GLOB tbb_src "${CMAKE_CURRENT_SOURCE_DIR}/src/tbb/*.cpp"
+				  "${CMAKE_CURRENT_SOURCE_DIR}/src/tbb/*.h"
+				  #"${CMAKE_CURRENT_SOURCE_DIR}/src/tbbmalloc/*.cpp"
+				  #"${CMAKE_CURRENT_SOURCE_DIR}/src/tbbmalloc/*.h"
+				  )
+list(APPEND tbb_src ${CMAKE_CURRENT_SOURCE_DIR}/src/tbb/rml_tbb.cpp)
+#file(GLOB to_remove "${CMAKE_CURRENT_SOURCE_DIR}/src/old/test*.cpp")
 list(REMOVE_ITEM tbb_src ${to_remove})
 
 configure_file (build/version_string.ver.in version_string.ver @ONLY)
@@ -35,10 +39,10 @@ elseif(WIN32)
 		endif()
 		
 		if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-			list(APPEND tbb_src src/tbb/intel64-masm/atomic_support.asm
-			src/tbb/intel64-masm/itsx.asm src/tbb/intel64-masm/intel64_misc.asm)
-			list(APPEND tbbmalloc_src src/tbb/intel64-masm/atomic_support.asm)
-			set(CMAKE_ASM_MASM_FLAGS "/DEM64T=1 ${CMAKE_ASM_MASM_FLAGS}")
+			#list(APPEND tbb_src src/tbb/intel64-masm/atomic_support.asm
+			#src/tbb/intel64-masm/itsx.asm src/tbb/intel64-masm/intel64_misc.asm)
+			#list(APPEND tbbmalloc_src src/tbb/intel64-masm/atomic_support.asm)
+			#set(CMAKE_ASM_MASM_FLAGS "/DEM64T=1 ${CMAKE_ASM_MASM_FLAGS}")
 		else()
 			list(APPEND tbb_src src/tbb/ia32-masm/atomic_support.asm
 			src/tbb/ia32-masm/itsx.asm src/tbb/ia32-masm/lock_byte.asm)
@@ -60,10 +64,10 @@ elseif (UNIX)
 	set(DISABLE_RTTI "-fno-rtti -fno-exceptions ")
 endif ()
 
-set(INCS ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR})
-__add_real_target(tbb lib SOURCE ${tbb_src}
-						  INC ${INCS} ${CMAKE_CURRENT_SOURCE_DIR}/src/
-						  DEF __TBB_SOURCE_DIRECTLY_INCLUDED
+set(INCS ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include/tbb ${CMAKE_CURRENT_BINARY_DIR})
+__add_real_target(onetbb lib SOURCE ${tbb_src}
+						  INC ${INCS} ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${CMAKE_CURRENT_SOURCE_DIR}/include/oneapi
+						  DEF __TBB_PREVIEW_TASK_ARENA_CONSTRAINTS_EXTENSION_PRESENT
 						  INTERFACE ${INCS})
 						  
 set_property(TARGET tbb APPEND PROPERTY COMPILE_DEFINITIONS "__TBB_BUILD=1")
@@ -75,7 +79,7 @@ if (UNIX)
 	endif()
 endif()
 if (MSVC)
-	target_compile_definitions(tbb PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
+	#target_compile_definitions(tbb PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
 endif()
 
 if(CC_INSTALL_TBB)
