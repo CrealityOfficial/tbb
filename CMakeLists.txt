@@ -255,9 +255,21 @@ endif()
 add_custom_target(tbb_def_files DEPENDS tbb.def tbbmalloc.def)
 
 
-if (TBB_BUILD_SHARED)
-  #add_library(tbb SHARED ${tbb_src})
-  __add_real_target(tbb dll SOURCE ${tbb_src} LIB tbb_interface)
+if (CC_GLOBAL_FORCE_STATIC)
+	__add_real_target(tbb lib SOURCE ${tbb_src}
+							  LIB tbb_interface
+							  )
+							  
+	target_include_directories(tbb INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:${TBB_INSTALL_INCLUDE_DIR}>")
+	set_property(TARGET tbb APPEND_STRING PROPERTY COMPILE_FLAGS ${ENABLE_RTTI})
+	
+	if (MSVC)
+		target_compile_definitions(tbb
+			PUBLIC -D__TBB_NO_IMPLICIT_LINKAGE=1
+			PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+	endif()
+else()
+		__add_real_target(tbb dll SOURCE ${tbb_src} LIB tbb_interface)
 
   #target_link_libraries(tbb PRIVATE tbb_interface)
   target_include_directories(tbb INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:${TBB_INSTALL_INCLUDE_DIR}>")
