@@ -3,7 +3,7 @@ author: zenggui,anoob@sina.cn
 url: xxxxxx
 repository: http://172.20.180.12:8050/yanfa4/corelib/tbb
 external_repository: https://github.com/CrealityOfficial/tbb
-description: tbb
-topics: tbb
+description: tbb_static
+topics: tbb_static
 build_deps:
 search_deps:

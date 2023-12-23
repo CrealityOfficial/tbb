@@ -256,48 +256,50 @@ add_custom_target(tbb_def_files DEPENDS tbb.def tbbmalloc.def)
 
 
 if (TBB_BUILD_SHARED)
-  #add_library(tbb SHARED ${tbb_src})
-  __add_real_target(tbb dll SOURCE ${tbb_src} LIB tbb_interface)
+  set(tbb_target tbb_static)
+  __add_real_target(${tbb_target} lib SOURCE ${tbb_src} LIB tbb_interface)
 
   #target_link_libraries(tbb PRIVATE tbb_interface)
-  target_include_directories(tbb INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:${TBB_INSTALL_INCLUDE_DIR}>")
-  set_property(TARGET tbb APPEND_STRING PROPERTY COMPILE_FLAGS ${ENABLE_RTTI})
+  target_include_directories(${tbb_target} INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:${TBB_INSTALL_INCLUDE_DIR}>")
+  set_property(TARGET ${tbb_target} APPEND_STRING PROPERTY COMPILE_FLAGS ${ENABLE_RTTI})
   if (TBB_SET_SOVERSION)
-    set_property(TARGET tbb PROPERTY SOVERSION 2)
+    set_property(TARGET ${tbb_target} PROPERTY SOVERSION 2)
   endif ()
 
-  target_compile_definitions(tbb
+  target_compile_definitions(${tbb_target}
     PRIVATE -D__TBB_BUILD=1)
 
   if (MSVC)
-    target_compile_definitions(tbb
+    target_compile_definitions(${tbb_target}
       PUBLIC -D__TBB_NO_IMPLICIT_LINKAGE=1
       PRIVATE -D_CRT_SECURE_NO_WARNINGS)
   endif()
 
-  add_dependencies(tbb tbb_def_files)
+  add_dependencies(${tbb_target} tbb_def_files)
 
   if (APPLE)
-    set_property(TARGET tbb APPEND PROPERTY LINK_FLAGS "-Wl,-exported_symbols_list,\"${CMAKE_CURRENT_BINARY_DIR}/tbb.def\"")
+    set_property(TARGET ${tbb_target} APPEND PROPERTY LINK_FLAGS "-Wl,-exported_symbols_list,\"${CMAKE_CURRENT_BINARY_DIR}/tbb.def\"")
   elseif (MSVC)
-    set_property(TARGET tbb APPEND PROPERTY LINK_FLAGS "/DEF:\"${CMAKE_CURRENT_BINARY_DIR}/tbb.def\"")
+    set_property(TARGET ${tbb_target} APPEND PROPERTY LINK_FLAGS "/DEF:\"${CMAKE_CURRENT_BINARY_DIR}/tbb.def\"")
   else ()
-    set_property(TARGET tbb APPEND PROPERTY LINK_FLAGS "-Wl,-version-script,\"${CMAKE_CURRENT_BINARY_DIR}/tbb.def\"")
+    set_property(TARGET ${tbb_target} APPEND PROPERTY LINK_FLAGS "-Wl,-version-script,\"${CMAKE_CURRENT_BINARY_DIR}/tbb.def\"")
   endif()
 
   if (TBB_INSTALL_TARGETS)
-    install(TARGETS tbb EXPORT TBB
+    install(TARGETS ${tbb_target} EXPORT TBB
             LIBRARY DESTINATION ${TBB_INSTALL_LIBRARY_DIR}
             ARCHIVE DESTINATION ${TBB_INSTALL_ARCHIVE_DIR}
             RUNTIME DESTINATION ${TBB_INSTALL_RUNTIME_DIR})
     if (MSVC)
-      install(FILES $<TARGET_PDB_FILE:tbb> DESTINATION ${TBB_INSTALL_RUNTIME_DIR} OPTIONAL)
+      install(FILES $<TARGET_PDB_FILE:${tbb_target}> DESTINATION ${TBB_INSTALL_RUNTIME_DIR} OPTIONAL)
     endif()
   endif()
 
-  if (UNIX AND NOT APPLE)
-    target_link_libraries(tbb PUBLIC pthread dl)
-  endif()
+	if (UNIX)
+		if(NOT CC_BC_ANDROID AND NOT CC_BC_IOS)
+			target_link_libraries(${tbb_target} PRIVATE pthread dl)
+		endif()
+	endif()
 endif()
 
 
