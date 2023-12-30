@@ -257,7 +257,11 @@ add_custom_target(tbb_def_files DEPENDS tbb.def tbbmalloc.def)
 
 if (TBB_BUILD_SHARED)
   set(tbb_target tbb_static)
-  __add_real_target(${tbb_target} lib SOURCE ${tbb_src} LIB tbb_interface)
+  set(DEFS __TBB_SOURCE_DIRECTLY_INCLUDED)
+  __add_real_target(${tbb_target} lib SOURCE ${tbb_src}
+									  LIB tbb_interface
+									  DEF ${DEFS}
+									  )
 
   #target_link_libraries(tbb PRIVATE tbb_interface)
   target_include_directories(${tbb_target} INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:${TBB_INSTALL_INCLUDE_DIR}>")
